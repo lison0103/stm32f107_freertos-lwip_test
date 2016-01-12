@@ -112,7 +112,7 @@
 /* #define SYSCLK_FREQ_36MHz  36000000 */
 /* #define SYSCLK_FREQ_48MHz  48000000 */
 /* #define SYSCLK_FREQ_56MHz  56000000 */
-#define SYSCLK_FREQ_72MHz  72000000
+#define SYSCLK_FREQ_72MHz  72000000             
 #endif
 
 /*!< Uncomment the following line if you need to use external SRAM mounted
@@ -1050,8 +1050,11 @@ static void SetSysClockTo72(void)
         
     RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
                               RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
-    RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+    RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV2 | RCC_CFGR2_PLL2MUL10 |
                              RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV5);
+
+//    RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+//                             RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV5);
   
     /* Enable PLL2 */
     RCC->CR |= RCC_CR_PLL2ON;

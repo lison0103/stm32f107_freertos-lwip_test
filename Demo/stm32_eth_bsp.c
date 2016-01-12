@@ -9,6 +9,16 @@
 #define  ETH_ERROR              ((uint32_t)0)
 #define  ETH_SUCCESS            ((uint32_t)1)
 
+
+static void _delay_(int cnt)
+{
+    volatile unsigned int dl;
+    while(cnt--)
+    {
+        for(dl=0; dl<500; dl++);
+    }
+}
+
 /* Global pointers on Tx and Rx descriptor used to track transmit and receive descriptors */
 extern ETH_DMADESCTypeDef  *DMATxDescToSet;
 extern ETH_DMADESCTypeDef  *DMARxDescToGet;
@@ -64,6 +74,10 @@ void ETH_BSP_Config(void)
 
 	/* Config NVIC for Ethernet */
 	ETH_NVIC_Config();
+        
+        
+//        ETH_WritePHYRegister(PHY_ADDRESS,0x1e,0x00);
+//        ETH_WritePHYRegister(PHY_ADDRESS,0x1e,0x40);
 }
 /**
   * @brief  Configures the Ethernet Interface
@@ -90,6 +104,12 @@ static void ETH_MACDMA_Config(void)
 
 	/* Fill ETH_InitStructure parametrs */
 	/*------------------------   MAC   -----------------------------------*/
+        RegValue = ETH_ReadPHYRegister(PHY_ADDRESS, 3);
+        if( RegValue & (1u << 13 ));
+        RegValue = ETH_ReadPHYRegister(PHY_ADDRESS, 2);
+        if( RegValue & (1u << 13 ));
+        RegValue = ETH_ReadPHYRegister(PHY_ADDRESS, 1);
+        if( RegValue & (1u << 13 ));
 	RegValue = ETH_ReadPHYRegister(PHY_ADDRESS, PHY_BCR);
 	if( RegValue & (1u << 13 ))
 		ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
@@ -133,8 +153,11 @@ static void ETH_MACDMA_Config(void)
   	/* Configure Ethernet */
 	EthInitStatus = ETH_Init(&ETH_InitStructure, PHY_ADDRESS);	
 	
-	/* Enable the Ethernet Rx Interrupt */
-	ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R, ENABLE);
+        if(EthInitStatus==ETH_SUCCESS)//ÅäÖÃ³É¹¦
+	{
+          /* Enable the Ethernet Rx Interrupt */
+          ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R, ENABLE);
+        }
 }
 
 /**
@@ -144,6 +167,103 @@ static void ETH_MACDMA_Config(void)
   */
 void ETH_GPIO_Config(void)
 {
+#if 1  
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	/* Enable GPIOs clocks */
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC |
+		                    RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
+
+	/* ETHERNET pins configuration */
+	/* AF Output Push Pull:
+        
+        -RESET PIN:                                             PA0
+        
+	- ETH_MII_MDIO / ETH_RMII_MDIO: 			PA2
+	- ETH_MII_MDC / ETH_RMII_MDC: 				PC1
+	- ETH_MII_TXD2: 							PC2
+	- ETH_MII_TX_EN / ETH_RMII_TX_EN: 			PB11
+	- ETH_MII_TXD0 / ETH_RMII_TXD0: 			PB12
+	- ETH_MII_TXD1 / ETH_RMII_TXD1: 			PB13
+	- ETH_MII_PPS_OUT / ETH_RMII_PPS_OUT:		PB5
+	- ETH_MII_TXD3: 							PB8
+	*/
+
+	/* Configure PA2 as alternate function push-pull */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Configure PC1 and PC2 as alternate function push-pull */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	/* Configure PB5, PB8, PB11, PB12 and PB13 as alternate function push-pull */
+	GPIO_InitStructure.GPIO_Pin = /*GPIO_Pin_5 | GPIO_Pin_8 |*/ GPIO_Pin_11 |
+		GPIO_Pin_12 | GPIO_Pin_13;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/**************************************************************/
+	/*               For Remapped Ethernet pins                   */
+	/*************************************************************/
+	/* Input (Reset Value):
+	- ETH_MII_CRS CRS:							PA0
+	- ETH_MII_RX_CLK / ETH_RMII_REF_CLK: 		        PA1
+	- ETH_MII_COL:								PA3
+	- ETH_MII_RX_DV / ETH_RMII_CRS_DV: 			PD8
+	- ETH_MII_TX_CLK:							PC3
+	- ETH_MII_RXD0 / ETH_RMII_RXD0:				PD9
+	- ETH_MII_RXD1 / ETH_RMII_RXD1:				PD10
+	- ETH_MII_RXD2:								PD11
+	- ETH_MII_RXD3: 							PD12
+	- ETH_MII_RX_ER:					PB10
+	*/
+
+	/* ETHERNET pins remapp in STM3210C-EVAL board: RX_DV and RxD[3:0] */
+	GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
+
+	/* Configure PA0, PA1 and PA3 as input */
+	GPIO_InitStructure.GPIO_Pin = /*GPIO_Pin_0 |*/ GPIO_Pin_1 /*| GPIO_Pin_3*/;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Configure PB10 as input */
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+//	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/* Configure PC3 as input */
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+//	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	/* Configure PD8, PD9, PD10, PD11 and PD12 as input */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 /*| GPIO_Pin_11 | GPIO_Pin_12*/;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOD, &GPIO_InitStructure); /**/  
+        
+        
+        //reset
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+        
+        KSZ8041NL_RST = 0;
+        _delay_(5);
+        KSZ8041NL_RST = 1;
+        
+#else  
+        
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	/* Enable GPIOs clocks */
@@ -230,6 +350,7 @@ void ETH_GPIO_Config(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+#endif
 }
 /**
   * @brief  Configures and enable the Ethernet global interrupt.

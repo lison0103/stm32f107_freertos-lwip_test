@@ -12,16 +12,15 @@ void bsp_init(void)
 
 
 	//PD13~15输出驱动led，配置成开漏输出
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 + GPIO_Pin_14 + GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-	GPIOD->BSRR = GPIO_BSRR_BS13 ;
-	GPIOD->BSRR = GPIO_BSRR_BS14 ;
-	GPIOD->BSRR = GPIO_BSRR_BS15 ;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	
-	lcd_init();
+//	lcd_init();
 }
 
 void LED_Toggle(unsigned char led)

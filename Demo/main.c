@@ -21,7 +21,7 @@ void TCPClient(void *arg);
 
 xSemaphoreHandle gTouchxSem;
 
-
+RCC_ClocksTypeDef RCC_Clocks;
 void main(void)
 {
 	bsp_init();
@@ -30,8 +30,8 @@ void main(void)
 	ETH_BSP_Config();
 	/* Initilaize the LwIP stack */
 	LwIP_Init();
-
-	xTaskCreate(led_task, "LED", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
+RCC_GetClocksFreq(&RCC_Clocks);
+//	xTaskCreate(led_task, "LED", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
 	xTaskCreate(TCPClient/*Touch_task*/, "Touch", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
 
 	/* Start scheduler */
@@ -95,7 +95,7 @@ void TCPClient(void *arg)
 		
 		lwip_setsockopt(xClientSocket.s,SOL_SOCKET,SO_KEEPALIVE,&optval,sizeof(optval));
 		ServerAddr.sin_family = AF_INET;
-		ServerAddr.sin_addr.s_addr = inet_addr("192.168.0.80");//inet_addr("122.224.200.89");//
+		ServerAddr.sin_addr.s_addr = inet_addr("10.129.200.79");//inet_addr("122.224.200.89");//
 		ServerAddr.sin_port = htons(8080);
 		
 		xClientSocket.bconnect = 0;

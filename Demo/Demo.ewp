@@ -87,7 +87,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>6.40.3.54103</state>
+          <state>6.50.1.4445</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -2091,9 +2091,15 @@
     </file>
     <file>
       <name>$PROJ_DIR$\ili_lcd.c</name>
+      <excluded>
+        <configuration>Debug</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\ili_lcd.h</name>
+      <excluded>
+        <configuration>Debug</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\lwipopts.h</name>
