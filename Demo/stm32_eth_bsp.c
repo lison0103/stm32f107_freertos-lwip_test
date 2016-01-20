@@ -57,16 +57,16 @@ void ETH_BSP_Config(void)
 #elif defined RMII_MODE  /* Mode RMII with STM3210C-EVAL */
 	GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_RMII);
 
-	/* Set PLL3 clock output to 50MHz (25MHz /5 *10 =50MHz) */
-	RCC_PLL3Config(RCC_PLL3Mul_10);
-	/* Enable PLL3 */
-	RCC_PLL3Cmd(ENABLE);
-	/* Wait till PLL3 is ready */
-	while (RCC_GetFlagStatus(RCC_FLAG_PLL3RDY) == RESET)
-	{}
-
-	/* Get PLL3 clock on PA8 pin (MCO) */
-	RCC_MCOConfig(RCC_MCO_PLL3CLK);
+//	/* Set PLL3 clock output to 50MHz (25MHz /5 *10 =50MHz) */
+//	RCC_PLL3Config(RCC_PLL3Mul_10);
+//	/* Enable PLL3 */
+//	RCC_PLL3Cmd(ENABLE);
+//	/* Wait till PLL3 is ready */
+//	while (RCC_GetFlagStatus(RCC_FLAG_PLL3RDY) == RESET)
+//	{}
+//
+//	/* Get PLL3 clock on PA8 pin (MCO) */
+//	RCC_MCOConfig(RCC_MCO_PLL3CLK);
 #endif
 
 	/* Configure the Ethernet MAC/DMA */

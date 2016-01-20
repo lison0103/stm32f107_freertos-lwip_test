@@ -62,11 +62,163 @@ typedef struct _XTCPCLIENTSOCK{
 									建立互斥量来做互斥操作*/
 }XTCPCLIENTSOCK;
 
-XTCPCLIENTSOCK xClientSocket;
+XTCPCLIENTSOCK xSeverSocket;
 
-#define BUF_SIZE		32
+#define BUF_SIZE		1024
 char ClientRevBuf[BUF_SIZE];
 
+#if 1
+
+#define MYPORT 8088    // the port users will be connecting to  
+#define BACKLOG 5     // how many pending connections queue will hold  
+int fd_A[BACKLOG];    // accepted connection fd  
+int conn_amount;      // current connection amount 
+
+
+void TCPClient(void *arg)
+{
+      int sock_fd, new_fd;             // listen on sock_fd, new connection on new_fd  
+      struct sockaddr_in server_addr;  // server address information  
+      struct sockaddr_in client_addr;  // connector's address information  
+      socklen_t sin_size;  
+      int yes = 1;  
+      char buf[BUF_SIZE];  
+      int ret;  
+      int i;  
+      
+      if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {  
+
+      }  
+      
+      if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {  
+
+      }  
+      server_addr.sin_family = AF_INET;         // host byte order  
+      server_addr.sin_port = htons(MYPORT);     // short, network byte order  
+      server_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP  
+      memset(server_addr.sin_zero, '/0', sizeof(server_addr.sin_zero));  
+      
+      
+      if (bind(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {  
+
+      }  
+      
+      
+      if (listen(sock_fd, BACKLOG) == -1) {  
+ 
+      }  
+      
+  
+  
+      fd_set fdsr;  
+      int maxsock;  
+      struct timeval tv;  
+      conn_amount = 0;  
+      sin_size = sizeof(client_addr);  
+      maxsock = sock_fd;  
+      
+      
+      while (1)   
+      {  
+        // initialize file descriptor set  
+        FD_ZERO(&fdsr);  
+        FD_SET(sock_fd, &fdsr);  // add fd  
+        
+        
+        // timeout setting  
+        tv.tv_sec = 10;  
+        tv.tv_usec = 0;  
+        
+        
+        // add active connection to fd set  
+        for (i = 0; i < BACKLOG; i++) {  
+          if (fd_A[i] != 0) {  
+            FD_SET(fd_A[i], &fdsr);  
+          }  
+        }  
+        
+        
+        ret = select(maxsock + 1, &fdsr, NULL, NULL, &tv);  
+        if (ret < 0) {          // error   
+          break;  
+        } else if (ret == 0) {  // time out  
+//          printf("timeout/n");  
+          continue;  
+        }  
+        
+        
+        // check every fd in the set  
+        for (i = 0; i < conn_amount; i++)   
+        {  
+          if (FD_ISSET(fd_A[i], &fdsr)) // check which fd is ready  
+          {  
+            ret = recv(fd_A[i], buf, sizeof(buf), 0);  
+            if (ret <= 0)   
+            {        // client close  
+//              printf("ret : %d and client[%d] close/n", ret, i);  
+              close(fd_A[i]);  
+              FD_CLR(fd_A[i], &fdsr);  // delete fd   
+              fd_A[i] = 0;  
+              conn_amount--;  
+            }  
+            else   
+            {        // receive data  
+              if (ret < BUF_SIZE)  
+//                memset(&buf[ret], '/0', 1); // add NULL('/0')  
+              
+//              printf("client[%d] send:%s/n", i, buf);  
+              
+              //send
+              send(fd_A[i],buf,ret,0);
+            }  
+          }  
+        }  
+        
+        // check whether a new connection comes  
+        if (FD_ISSET(sock_fd, &fdsr))   
+        {  
+            // accept new connection  
+            new_fd = accept(sock_fd, (struct sockaddr *)&client_addr, &sin_size);  
+            if (new_fd <= 0)   
+            {  
+                continue;  
+            }  
+          
+          
+          // add to fd queue  
+          if (conn_amount < BACKLOG)   
+          {  
+            fd_A[conn_amount++] = new_fd;  
+//            printf("new connection client[%d] %s:%d/n", conn_amount,  
+//                   inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));  
+            if (new_fd > maxsock)  // update the maxsock fd for select function  
+              maxsock = new_fd;  
+          }  
+          else   
+          {  
+//              printf("max connections arrive, exit/n");  
+              send(new_fd, "bye", 4, 0);  
+              close(new_fd);  
+              break;     
+          }  
+        }  
+        
+      }  
+      
+      
+      // close other connections  
+      for (i = 0; i < BACKLOG; i++)   
+      {  
+        if (fd_A[i] != 0)   
+        {   
+          close(fd_A[i]);  
+        }  
+      } 
+  
+}
+
+
+#else
 void TCPClient(void *arg)
 {
 	struct sockaddr_in ServerAddr;
@@ -146,33 +298,34 @@ void TCPClient(void *arg)
 		}	
 	}
 }
+#endif
 //------------------------------------------------------------------------------
 //触摸屏任务，触摸屏触摸中断后发出信号，任务得于运行处理
-char str[16];
-void Touch_task(void *pvParam)
-{
-	unsigned short TouchXVal,TouchYVal;
-	LCD_TouchEnable();
-	vSemaphoreCreateBinary(gTouchxSem);	//创建触摸输入中断发生信号量
-	xSemaphoreTake( gTouchxSem,0);		//清除信号
-	for(; ; )
-	{
-		if( xSemaphoreTake( gTouchxSem, portMAX_DELAY ) == pdTRUE )
-		{
-			TouchXVal = LCD_ReadTouchXY(0);
-			TouchYVal = LCD_ReadTouchXY(1);
-			PRINTF("Touch X output:%4X\r\n",TouchXVal);
-			sprintf(str,"X:%4d",TouchXVal / 8);
-			//LCD_DisplayStringLine(128,"      ");
-			LCD_DisplayStringLine(128,(unsigned char*)str);
-			
-			PRINTF("Touch Y output:%4X\r\n",TouchYVal);
-			sprintf(str,"Y:%4d",TouchYVal / 8);
-			//LCD_DisplayStringLine(152,"      ");
-			LCD_DisplayStringLine(152,(unsigned char*)str);
-		}	
-	}
-}
+//char str[16];
+//void Touch_task(void *pvParam)
+//{
+//	unsigned short TouchXVal,TouchYVal;
+//	LCD_TouchEnable();
+//	vSemaphoreCreateBinary(gTouchxSem);	//创建触摸输入中断发生信号量
+//	xSemaphoreTake( gTouchxSem,0);		//清除信号
+//	for(; ; )
+//	{
+//		if( xSemaphoreTake( gTouchxSem, portMAX_DELAY ) == pdTRUE )
+//		{
+//			TouchXVal = LCD_ReadTouchXY(0);
+//			TouchYVal = LCD_ReadTouchXY(1);
+//			PRINTF("Touch X output:%4X\r\n",TouchXVal);
+//			sprintf(str,"X:%4d",TouchXVal / 8);
+//			//LCD_DisplayStringLine(128,"      ");
+//			LCD_DisplayStringLine(128,(unsigned char*)str);
+//			
+//			PRINTF("Touch Y output:%4X\r\n",TouchYVal);
+//			sprintf(str,"Y:%4d",TouchYVal / 8);
+//			//LCD_DisplayStringLine(152,"      ");
+//			LCD_DisplayStringLine(152,(unsigned char*)str);
+//		}	
+//	}
+//}
 //触摸屏有触摸后的中断
 void EXTI9_5_IRQHandler(void)
 {
