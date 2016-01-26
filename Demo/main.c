@@ -43,13 +43,10 @@ RCC_GetClocksFreq(&RCC_Clocks);
 
 void led_task(void *pvParam)
 {
-	unsigned char  turn = 0;
+
 	for( ; ; )
 	{
-		LED_Toggle(1);
-		turn ++ ;
-		if( turn > 3)
-			turn = 0;
+                LED0 =!LED0;
 		vTaskDelay( 500 );
 	}
 }
@@ -63,6 +60,7 @@ typedef struct _XTCPCLIENTSOCK{
 }XTCPCLIENTSOCK;
 
 XTCPCLIENTSOCK xSeverSocket;
+XTCPCLIENTSOCK xClientSocket;
 
 #define BUF_SIZE		1024
 char ClientRevBuf[BUF_SIZE];
@@ -86,7 +84,7 @@ void TCPClient(void *arg)
       int ret;  
       int i;  
       
-      if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {  
+      if ((sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {  
 
       }  
       
