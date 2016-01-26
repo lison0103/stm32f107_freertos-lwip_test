@@ -13,7 +13,7 @@
 
 #include "lwip/sockets.h"
 
-#define LED_TASK_PRIO			( tskIDLE_PRIORITY + 1 )
+#define LED_TASK_PRIO			( tskIDLE_PRIORITY + 5 )
 
 void led_task(void *pvParam);
 void Touch_task(void *pvParam);
@@ -21,7 +21,7 @@ void TCPClient(void *arg);
 
 xSemaphoreHandle gTouchxSem;
 
-RCC_ClocksTypeDef RCC_Clocks;
+//RCC_ClocksTypeDef RCC_Clocks;
 void main(void)
 {
 	bsp_init();
@@ -30,7 +30,7 @@ void main(void)
 	ETH_BSP_Config();
 	/* Initilaize the LwIP stack */
 	LwIP_Init();
-RCC_GetClocksFreq(&RCC_Clocks);
+//RCC_GetClocksFreq(&RCC_Clocks);
 //	xTaskCreate(led_task, "LED", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
 	xTaskCreate(TCPClient/*Touch_task*/, "Touch", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
 
@@ -62,7 +62,7 @@ typedef struct _XTCPCLIENTSOCK{
 XTCPCLIENTSOCK xSeverSocket;
 XTCPCLIENTSOCK xClientSocket;
 
-#define BUF_SIZE		1024
+#define BUF_SIZE		4096
 char ClientRevBuf[BUF_SIZE];
 
 #if 1
@@ -84,7 +84,7 @@ void TCPClient(void *arg)
       int ret;  
       int i;  
       
-      if ((sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {  
+      if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {  
 
       }  
       
