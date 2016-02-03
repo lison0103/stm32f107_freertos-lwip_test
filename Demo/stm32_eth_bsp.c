@@ -12,7 +12,7 @@
 
 static void _delay_(int cnt)
 {
-    unsigned int dl;
+    volatile unsigned int dl;
     while(cnt--)
     {
         for(dl=0; dl<500; dl++);
