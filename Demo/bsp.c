@@ -1,10 +1,36 @@
 
 #include "stm32f10x_conf.h"
-#include "ili_lcd.h"
+
+
+void WFI_SET(void)
+{
+	__ASM("WFI");		  
+}
+//关闭所有中断
+void INTX_DISABLE(void)
+{
+	__ASM("CPSID I");    		  
+}
+//开启所有中断
+void INTX_ENABLE(void)
+{
+	__ASM("CPSIE I");		  
+}
+//设置栈顶地址
+//addr:栈顶地址
+void MSR_MSP(u32 addr) 
+{
+    __ASM("MSR MSP, r0"); 			//set Main Stack value
+    __ASM("BX r14");
+}
 
 void bsp_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
+        
+        NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x10000);
+        
+        INTX_ENABLE();
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD,ENABLE);
 	/* 2 bit for pre-emption priority, 2 bits for subpriority */
