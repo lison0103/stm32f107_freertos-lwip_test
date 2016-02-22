@@ -89,7 +89,7 @@
         </option>
         <option>
           <name>OCLastSavedByProductVersion</name>
-          <state>6.40.3.54103</state>
+          <state>6.50.1.4445</state>
         </option>
         <option>
           <name>OCDownloadAttachToProgram</name>
@@ -317,7 +317,7 @@
       <name>IJET_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>0</version>
+        <version>1</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -330,10 +330,6 @@
         </option>
         <option>
           <name>OCIarProbeScriptFile</name>
-          <state>1</state>
-        </option>
-        <option>
-          <name>OCIarProbeConfigFile</name>
           <state>1</state>
         </option>
         <option>
@@ -486,6 +482,14 @@
         <option>
           <name>CatchDummy</name>
           <state>0</state>
+        </option>
+        <option>
+          <name>OCProbeCfgOverride</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>OCProbeConfig</name>
+          <state></state>
         </option>
       </data>
     </settings>
@@ -937,63 +941,6 @@
       </data>
     </settings>
     <settings>
-      <name>RDIJTAGJET_ID</name>
-      <archiveVersion>0</archiveVersion>
-      <data>
-        <version>1</version>
-        <wantNonLocal>1</wantNonLocal>
-        <debug>1</debug>
-        <option>
-          <name>CRDILogFileCheck</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CRDILogFileEdit</name>
-          <state>$PROJ_DIR$\cspycomm.log</state>
-        </option>
-        <option>
-          <name>CCRDIHWReset</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchReset</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchUndef</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchSWI</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchData</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchPrefetch</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchIRQ</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchFIQ</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>OCDriverInfo</name>
-          <state>1</state>
-        </option>
-        <option>
-          <name>JTAGjetConfigure</name>
-          <state></state>
-        </option>
-      </data>
-    </settings>
-    <settings>
       <name>STLINK_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
@@ -1060,7 +1007,7 @@
       <name>XDS100_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>1</version>
+        <version>2</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -1088,9 +1035,21 @@
           <name>BoardFile</name>
           <state></state>
         </option>
+        <option>
+          <name>DoLogfile</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>LogFile</name>
+          <state>$PROJ_DIR$\cspycomm.log</state>
+        </option>
       </data>
     </settings>
     <debuggerPlugins>
+      <plugin>
+        <file>$TOOLKIT_DIR$\plugins\middleware\HCCWare\HCCWare.ewplugin</file>
+        <loadFlag>0</loadFlag>
+      </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\AVIX\AVIX.ENU.ewplugin</file>
         <loadFlag>0</loadFlag>
@@ -1113,7 +1072,7 @@
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\OpenRTOS\OpenRTOSPlugin.ewplugin</file>
-        <loadFlag>1</loadFlag>
+        <loadFlag>0</loadFlag>
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\PowerPac\PowerPacRTOS.ewplugin</file>
@@ -1472,7 +1431,7 @@
       <name>IJET_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>0</version>
+        <version>1</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
@@ -1485,10 +1444,6 @@
         </option>
         <option>
           <name>OCIarProbeScriptFile</name>
-          <state>1</state>
-        </option>
-        <option>
-          <name>OCIarProbeConfigFile</name>
           <state>1</state>
         </option>
         <option>
@@ -1641,6 +1596,14 @@
         <option>
           <name>CatchDummy</name>
           <state>0</state>
+        </option>
+        <option>
+          <name>OCProbeCfgOverride</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>OCProbeConfig</name>
+          <state></state>
         </option>
       </data>
     </settings>
@@ -2092,63 +2055,6 @@
       </data>
     </settings>
     <settings>
-      <name>RDIJTAGJET_ID</name>
-      <archiveVersion>0</archiveVersion>
-      <data>
-        <version>1</version>
-        <wantNonLocal>1</wantNonLocal>
-        <debug>0</debug>
-        <option>
-          <name>CRDILogFileCheck</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CRDILogFileEdit</name>
-          <state>$PROJ_DIR$\cspycomm.log</state>
-        </option>
-        <option>
-          <name>CCRDIHWReset</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchReset</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchUndef</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchSWI</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchData</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchPrefetch</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchIRQ</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>CCRDICatchFIQ</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>OCDriverInfo</name>
-          <state>1</state>
-        </option>
-        <option>
-          <name>JTAGjetConfigure</name>
-          <state></state>
-        </option>
-      </data>
-    </settings>
-    <settings>
       <name>STLINK_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
@@ -2215,7 +2121,7 @@
       <name>XDS100_ID</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>1</version>
+        <version>2</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
@@ -2243,9 +2149,21 @@
           <name>BoardFile</name>
           <state></state>
         </option>
+        <option>
+          <name>DoLogfile</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>LogFile</name>
+          <state>$PROJ_DIR$\cspycomm.log</state>
+        </option>
       </data>
     </settings>
     <debuggerPlugins>
+      <plugin>
+        <file>$TOOLKIT_DIR$\plugins\middleware\HCCWare\HCCWare.ewplugin</file>
+        <loadFlag>0</loadFlag>
+      </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\AVIX\AVIX.ENU.ewplugin</file>
         <loadFlag>0</loadFlag>

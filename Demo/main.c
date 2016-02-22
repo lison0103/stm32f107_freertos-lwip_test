@@ -9,19 +9,22 @@
 
 #include "bsp.h"
 #include "miniDebug.h"
-#include "ili_lcd.h"
 
 #include "lwip/sockets.h"
 
-#define LED_TASK_PRIO			( tskIDLE_PRIORITY + 1 )
+#define LED0_TASK_PRIO			( tskIDLE_PRIORITY + 1 )
+#define LED1_TASK_PRIO			( tskIDLE_PRIORITY + 2 )
+#define TCP_TASK_PRIO			( tskIDLE_PRIORITY + 3 )
 
-void led_task(void *pvParam);
-void Touch_task(void *pvParam);
+#define configTCP_STACK_SIZE	        ( ( unsigned short ) 1024 )
+
+void led0_task(void *pvParam);
+void led1_task(void *pvParam);
 void TCPClient(void *arg);
 
 xSemaphoreHandle gTouchxSem;
 
-RCC_ClocksTypeDef RCC_Clocks;
+
 void main(void)
 {
 	bsp_init();
@@ -30,9 +33,10 @@ void main(void)
 	ETH_BSP_Config();
 	/* Initilaize the LwIP stack */
 	LwIP_Init();
-RCC_GetClocksFreq(&RCC_Clocks);
-//	xTaskCreate(led_task, "LED", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
-	xTaskCreate(TCPClient/*Touch_task*/, "Touch", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
+
+	xTaskCreate(led0_task, "LED0", configMINIMAL_STACK_SIZE, NULL, LED0_TASK_PRIO, NULL);
+        xTaskCreate(led1_task, "LED1", configMINIMAL_STACK_SIZE, NULL, LED1_TASK_PRIO, NULL);
+	xTaskCreate(TCPClient, "TCP",  configTCP_STACK_SIZE, NULL, TCP_TASK_PRIO, NULL);
 
 	/* Start scheduler */
 	vTaskStartScheduler();
@@ -41,15 +45,23 @@ RCC_GetClocksFreq(&RCC_Clocks);
 	for( ;; );
 }
 
-void led_task(void *pvParam)
+void led0_task(void *pvParam)
 {
-	unsigned char  turn = 0;
+        LED0 = 0;
+        
 	for( ; ; )
 	{
-		LED_Toggle(1);
-		turn ++ ;
-		if( turn > 3)
-			turn = 0;
+                LED0 =!LED0;
+		vTaskDelay( 500 );
+	}
+}
+void led1_task(void *pvParam)
+{
+        LED1 = 1;
+        
+	for( ; ; )
+	{
+                LED1 =!LED1;
 		vTaskDelay( 500 );
 	}
 }
@@ -299,42 +311,5 @@ void TCPClient(void *arg)
 	}
 }
 #endif
-//------------------------------------------------------------------------------
-//触摸屏任务，触摸屏触摸中断后发出信号，任务得于运行处理
-//char str[16];
-//void Touch_task(void *pvParam)
-//{
-//	unsigned short TouchXVal,TouchYVal;
-//	LCD_TouchEnable();
-//	vSemaphoreCreateBinary(gTouchxSem);	//创建触摸输入中断发生信号量
-//	xSemaphoreTake( gTouchxSem,0);		//清除信号
-//	for(; ; )
-//	{
-//		if( xSemaphoreTake( gTouchxSem, portMAX_DELAY ) == pdTRUE )
-//		{
-//			TouchXVal = LCD_ReadTouchXY(0);
-//			TouchYVal = LCD_ReadTouchXY(1);
-//			PRINTF("Touch X output:%4X\r\n",TouchXVal);
-//			sprintf(str,"X:%4d",TouchXVal / 8);
-//			//LCD_DisplayStringLine(128,"      ");
-//			LCD_DisplayStringLine(128,(unsigned char*)str);
-//			
-//			PRINTF("Touch Y output:%4X\r\n",TouchYVal);
-//			sprintf(str,"Y:%4d",TouchYVal / 8);
-//			//LCD_DisplayStringLine(152,"      ");
-//			LCD_DisplayStringLine(152,(unsigned char*)str);
-//		}	
-//	}
-//}
-//触摸屏有触摸后的中断
-void EXTI9_5_IRQHandler(void)
-{
-	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-	if(EXTI_GetITStatus(EXTI_Line7) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line7);
-		xSemaphoreGiveFromISR( gTouchxSem, &xHigherPriorityTaskWoken );
-	}
-	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
-}
+
 //------------------------------------------------------------------------------
